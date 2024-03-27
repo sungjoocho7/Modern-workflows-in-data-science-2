@@ -1,5 +1,5 @@
 ---
-title: "Dynamic Reports-Attitudes Towards Gender Roles and Immigration"
+title: "Attitudes Towards Gender Roles and Immigration"
 author: "Sungjoo Cho"
 date: "`r Sys.Date()`"
 output: html_document
@@ -43,11 +43,11 @@ render_report <- function(path, cntry) {
 
 
 
-
 ## Report on `r params$nms`
 
 
 ### Descriptive Analysis
+
 ```{r}
 # table for continuous variables
 sum_v72 <- summary(analysis_evs$v72)

@@ -11,6 +11,18 @@ output:
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+
+## Introduction
+
+This report explores attitudes towards gender roles and immigration using data from the European Value Study (EVS) 2017. Key variables analyzed include v72 and v80, which respectively measure perceptions on maternal employment effects and job priority during scarcity. We will incorporates demographic information such as age, sex, and education level for a comprehensive analyses.
+
+-   **v72** - Child suffers with working mother
+    -   Question: When a mother works for pay, the children suffer
+    -   Scale: 1 (Strongly agree) to 4 (Strongly disagree)
+-   **v80** - Jobs are scarce:giving...(nation)priority
+    -   Question: When jobs are scarce, employers should give priority to [Nationality] people over immigrants"
+    -   Scale: 1 (Strongly agree) to 4 (Strongly disagree)
+
 ```{r message=FALSE, warning=FALSE}
 # library
 library(dplyr)
@@ -24,13 +36,16 @@ library(texreg)
 library(plotly)
 ```
 
-## Data
 ```{r}
 # load cleaned data
 evs <- readRDS("data/evs.rds")
 ```
 
+
 ## Descriptive Analysis
+
+Below tables are descriptive statistics for both continuous and categorical variables. The mean values for v72 and v80 are 2.7 and 2.3, respectively. The data also illustrates that medium education levels comprise the highest proportion across countries, followed by higher and lower education levels.
+
 ```{r}
 # table for continuous variables
 sum_v72 <- summary(evs$v72)
@@ -73,7 +88,11 @@ tab_categorical <- bind_rows(evs_sex, evs_edu)
 kable(tab_categorical, caption = "Summary Statistics for sex and education")
 ```
 
-## Graphs
+
+## Change in Attitudes by Age
+
+The two graphs presented below illustrates how the two variables of interest change with age. Notably, the average disagreement towards both child suffers and job to national variables decreases as age increases. Particularly, there is a more significant decrease observed in the v72 variable. This finding suggests that people are more likely to agree that child suffer when their mother works and that job priority should be given to nationals as they get older.
+
 ```{r}
 # table of average v72 and v80 by age
 tab_ave_age <- evs %>%
@@ -103,27 +122,11 @@ ggplotly(chart_ave_v80)
 ```
 
 
+## Regression Models
 
+The table below shows regression models for both attitudes towards Child suffers (v72) and Job to national (v80). The models include respondents' age, age squared, sex and education. The regression models show that age, gender, and education significantly influence attitudes towards gender roles and immigration. Particularly, in the model for v72, it's ovserved that disagreement regarding the idea that a child suffers if the mother works increases by 0.06 among females (p<0.05). Additionally, individuals with higher education levels tend to exhibit greater disagreement with attitudes towards both "Child suffers" and "Job to national". 
+disagreement on that child suffers if the mother works increases 0.06 in females (p<0.05). Also, people who have higher education levels tend to have more disagreement attitudes towards child suffers and job to national.
 
-```{r}
-# v72
-p_v72 <- ggplot(evs, aes(x = age, fill = factor(v72))) +
-  geom_density(alpha = 0.5) +
-  labs(title = "Density of v72 with Age", x = "Age", y = "Density") +
-  theme_minimal()
-p_v72
-```
-
-```{r}
-# v80
-p_v80 <- ggplot(evs, aes(x = age, fill = factor(v80))) +
-  geom_density(alpha = 0.5) +
-  labs(title = "Density of v80 with Age", x = "Age", y = "Density") +
-  theme_minimal()
-p_v80
-```
-
-## Regression models
 ```{r results='asis'}
 evs$edu <- as.factor(evs$edu)
 evs$sex <- as.factor(evs$sex)
@@ -135,11 +138,11 @@ reg_v72 <- lm(v72 ~ age + I(age^2) + sex + edu, data = evs)
 reg_v80 <- lm(v80 ~ age + I(age^2) + sex + edu, data = evs)
 
 # present outputs from stats model texreg (texreg: pdf, htmlreg: html)
-htmlreg(list(reg_v72, reg_v80), caption = "Outputs from Regression Models", type = "html")
+model_names <- c("Child suffers(v72)", "Job to national(v80)")
+coef_names <- c("Intercept", "Age", "Age Squared", "Female", "Education:medium", "Education:higher", "Education:other")
+
+htmlreg(list(reg_v72, reg_v80), 
+        custom.model.names = model_names, 
+        custom.coef.names = coef_names,
+        caption = "Outputs from Regression Models", type = "html")
 ```
-
-
-
-
-
-
