@@ -1,0 +1,145 @@
+---
+title: "Overall Report (R code)-Attitudes Towards Gender Roles and Immigration"
+author: "Sungjoo Cho"
+date: "`r Sys.Date()`"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r message=FALSE, warning=FALSE}
+# library
+library(dplyr)
+library(tidyr)
+library(haven)
+library(knitr)
+library(ggplot2)
+library(summarytools)
+library(ggExtra)
+library(texreg)
+library(plotly)
+```
+
+## Data
+```{r}
+# load cleaned data
+evs <- readRDS("data/evs.rds")
+```
+
+## Descriptive Analysis
+```{r}
+# table for continuous variables
+sum_v72 <- summary(evs$v72)
+sum_v80 <- summary(evs$v80)
+sum_age <- summary(evs$age)
+
+tab_continuous <- tibble("Variables" = c("v72", "v80", "age"),
+                         "Mininum" = c(sum_v72["Min."], sum_v80["Min."], sum_age["Min."]),
+                         "1st Qu." = c(sum_v72["1st Qu."], sum_v80["1st Qu."], sum_age["1st Qu."]),
+                         "Median" = c(sum_v72["Median"], sum_v80["Median"], sum_age["Median"]),
+                         "Mean" = c(round(sum_v72["Mean"], 3), round(sum_v80["Mean"], 3), sum_age["Mean"]),
+                         "3rd Qu." = c(sum_v72["3rd Qu."], sum_v80["3rd Qu."], sum_age["3rd Qu."]),
+                         "Maximum" = c(sum_v72["Max."], sum_v80["Max."], sum_age["Max."]))
+
+kable(tab_continuous, caption = "Summary Statistics for v72 and v80")
+```
+
+```{r}
+# table for categorical variables
+evs$sex <- factor(evs$sex, levels = c(1, 2), labels = c("Male", "Female"))
+evs$edu <- factor(evs$edu, levels = c(1, 2, 3, 66), labels = c("lower", "medium", "higher", "other"))
+
+evs_sex <- evs %>%
+  group_by(sex) %>%
+  summarise(frequency = n(),
+            proportion = round(n()/nrow(evs), 4)) %>%
+  mutate(variable = "sex",
+         value = sex) %>%
+  select(variable, value, frequency, proportion)
+
+evs_edu <- evs %>%
+  group_by(edu) %>%
+  summarise(frequency = n(),
+            proportion = round(n()/nrow(evs), 4)) %>%
+  mutate(variable = "education",
+         value = edu) %>%
+  select(variable, value, frequency, proportion)
+
+tab_categorical <- bind_rows(evs_sex, evs_edu)
+kable(tab_categorical, caption = "Summary Statistics for sex and education")
+```
+
+## Graphs
+```{r}
+# table of average v72 and v80 by age
+tab_ave_age <- evs %>%
+  select(v72, v80, age) %>%
+  group_by(age) %>%
+  summarise(v72 = mean(v72, na.rm = TRUE),
+            v80 = mean(v80, na.rm = TRUE))
+tab_ave_age
+
+# grraph for v72
+chart_ave_v72 <- ggplot(tab_ave_age, aes(x=age, y=v72)) +
+  geom_line(color = "blue") +
+              labs(title = "Average Disagreement of v72 by Age", 
+                   x = "Age", 
+                   y = "Average Disagreement")
+
+ggplotly(chart_ave_v72)
+
+
+  # grraph for v80
+chart_ave_v80 <- ggplot(tab_ave_age, aes(x=age, y=v80)) +
+  geom_line(color = "blue") +
+              labs(title = "Average Disagreement of v80 by Age", 
+                   x = "Age", 
+                   y = "Average Disagreement")
+ggplotly(chart_ave_v80)
+```
+
+
+
+
+```{r}
+# v72
+p_v72 <- ggplot(evs, aes(x = age, fill = factor(v72))) +
+  geom_density(alpha = 0.5) +
+  labs(title = "Density of v72 with Age", x = "Age", y = "Density") +
+  theme_minimal()
+p_v72
+```
+
+```{r}
+# v80
+p_v80 <- ggplot(evs, aes(x = age, fill = factor(v80))) +
+  geom_density(alpha = 0.5) +
+  labs(title = "Density of v80 with Age", x = "Age", y = "Density") +
+  theme_minimal()
+p_v80
+```
+
+## Regression models
+```{r results='asis'}
+evs$edu <- as.factor(evs$edu)
+evs$sex <- as.factor(evs$sex)
+
+# regression model of v72
+reg_v72 <- lm(v72 ~ age + I(age^2) + sex + edu, data = evs)
+
+# regression model of v80
+reg_v80 <- lm(v80 ~ age + I(age^2) + sex + edu, data = evs)
+
+# present outputs from stats model texreg (texreg: pdf, htmlreg: html)
+htmlreg(list(reg_v72, reg_v80), caption = "Outputs from Regression Models", type = "html")
+```
+
+
+
+
+
+

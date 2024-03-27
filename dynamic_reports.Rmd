@@ -1,0 +1,143 @@
+---
+title: "Dynamic Reports-Attitudes Towards Gender Roles and Immigration"
+author: "Sungjoo Cho"
+date: "`r Sys.Date()`"
+output: html_document
+params:
+   nms: Albania
+---
+
+```{r, include=FALSE}
+# library
+library(dplyr)
+library(tidyr)
+library(haven)
+library(knitr)
+library(ggplot2)
+library(summarytools)
+library(ggExtra)
+library(texreg)
+library(plotly)
+library(sjlabelled)
+library(tidyverse)
+library(broom)
+
+# load cleaned data
+evs <- readRDS("data/evs.rds")
+
+# unique country names
+unique_countries <- unique(evs$cntry)
+
+# iteration function for batch creation
+render_report <- function(path, cntry) {
+  rmarkdown::render(
+    path,
+    params = list(nms = cntry),
+    output_file = paste0("reports/Report-", cntry, ".html"))}
+
+# iterate over each unique country name and render report
+#for(cntry in unique_countries) {
+#  render_report("dynamic_reports.Rmd", cntry)
+#}
+```
+
+
+
+
+## Report on `r params$nms`
+
+
+### Descriptive Analysis
+```{r}
+# table for continuous variables
+sum_v72 <- summary(analysis_evs$v72)
+sum_v80 <- summary(analysis_evs$v80)
+sum_age <- summary(analysis_evs$age)
+
+tab_continuous <- tibble("Variables" = c("v72", "v80", "age"),
+                         "Mininum" = c(sum_v72["Min."], sum_v80["Min."], sum_age["Min."]),
+                         "1st Qu." = c(sum_v72["1st Qu."], sum_v80["1st Qu."], sum_age["1st Qu."]),
+                         "Median" = c(sum_v72["Median"], sum_v80["Median"], sum_age["Median"]),
+                         "Mean" = c(round(sum_v72["Mean"], 3), round(sum_v80["Mean"], 3), sum_age["Mean"]),
+                         "3rd Qu." = c(sum_v72["3rd Qu."], sum_v80["3rd Qu."], sum_age["3rd Qu."]),
+                         "Maximum" = c(sum_v72["Max."], sum_v80["Max."], sum_age["Max."]))
+
+kable(tab_continuous, caption = "Summary Statistics for v72 and v80")
+```
+
+```{r}
+# table for categorical variables
+analysis_evs$sex <- factor(analysis_evs$sex, levels = c(1, 2), labels = c("Male", "Female"))
+analysis_evs$edu <- factor(analysis_evs$edu, levels = c(1, 2, 3, 66), labels = c("lower", "medium", "higher", "other"))
+
+analysis_evs_sex <- analysis_evs %>%
+  group_by(sex) %>%
+  summarise(frequency = n(),
+            proportion = round(n()/nrow(evs), 4)) %>%
+  mutate(variable = "sex",
+         value = sex) %>%
+  select(variable, value, frequency, proportion)
+
+analysis_evs_edu <- analysis_evs %>%
+  group_by(edu) %>%
+  summarise(frequency = n(),
+            proportion = round(n()/nrow(analysis_evs), 4)) %>%
+  mutate(variable = "education",
+         value = edu) %>%
+  select(variable, value, frequency, proportion)
+
+tab_categorical <- bind_rows(analysis_evs_sex, analysis_evs_edu)
+kable(tab_categorical, caption = "Summary Statistics for sex and education")
+```
+
+### Graphs
+
+```{r}
+# table of average v72 and v80 by age
+tab_ave_age <- analysis_evs %>%
+  select(v72, v80, age) %>%
+  group_by(age) %>%
+  summarise(v72 = mean(v72, na.rm = TRUE),
+            v80 = mean(v80, na.rm = TRUE))
+
+# grraph for v72
+chart_ave_v72 <- ggplot(tab_ave_age, aes(x=age, y=v72)) +
+  geom_line(color = "blue") +
+              labs(title = "Average Disagreement of v72 by Age", 
+                   x = "Age", 
+                   y = "Average Disagreement")
+
+ggplotly(chart_ave_v72)
+
+
+  # grraph for v80
+chart_ave_v80 <- ggplot(tab_ave_age, aes(x=age, y=v80)) +
+  geom_line(color = "blue") +
+              labs(title = "Average Disagreement of v80 by Age", 
+                   x = "Age", 
+                   y = "Average Disagreement")
+ggplotly(chart_ave_v80)
+```
+
+
+### Regression models
+```{r results='asis'}
+analysis_evs$edu <- as.factor(analysis_evs$edu)
+analysis_evs$sex <- as.factor(analysis_evs$sex)
+
+# regression model of v72
+reg_v72 <- lm(v72 ~ age + age^2 + sex + edu, data = analysis_evs)
+
+# regression model of v80
+reg_v80 <- lm(v80 ~ age + age^2 + sex + edu, data = analysis_evs)
+
+# present outputs from stats model texreg
+htmlreg(list(reg_v72, reg_v80), caption = "Outputs from Regression Models", type = "html")
+```
+
+
+
+
+
+
+
