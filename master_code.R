@@ -91,6 +91,9 @@ chart_ave_v72 <- ggplot(tab_ave_age, aes(x=age, y=v72)) +
        y = "Average Disagreement")
 ggplotly(chart_ave_v72)
 
+# save
+ggsave("figs/chart_ave_v72.png", plot = chart_ave_v72)
+
 
 # grraph for v80
 chart_ave_v80 <- ggplot(tab_ave_age, aes(x=age, y=v80)) +
@@ -99,6 +102,9 @@ chart_ave_v80 <- ggplot(tab_ave_age, aes(x=age, y=v80)) +
        x = "Age", 
        y = "Average Disagreement")
 ggplotly(chart_ave_v80)
+
+# save
+ggsave("figs/chart_ave_v80.png", plot = chart_ave_v80)
 
 
 

@@ -35,6 +35,8 @@ render_report <- function(path, cntry) {
     params = list(nms = cntry),
     output_file = paste0("reports/Report-", cntry, ".html"))}
 
+analysis_evs <- evs[evs$cntry == params$nms, ]
+
 # iterate over each unique country name and render report
 #for(cntry in unique_countries) {
 #  render_report("dynamic_reports.Rmd", cntry)
@@ -42,13 +44,25 @@ render_report <- function(path, cntry) {
 ```
 
 
-
 ## Report on `r params$nms`
+
+### Introduction
+
+This report explores attitudes towards gender roles and immigration in `r params$nms` using data from the European Value Study (EVS) 2017. Key variables analyzed include v72 and v80, which respectively measure perceptions on maternal employment effects and job priority during scarcity. We will incorporates demographic information such as age, sex, and education level for a comprehensive analyses.
+
+-   **v72** - Child suffers with working mother
+    -   Question: When a mother works for pay, the children suffer
+    -   Scale: 1 (Strongly agree) to 4 (Strongly disagree)
+-   **v80** - Jobs are scarce:giving...(nation)priority
+    -   Question: When jobs are scarce, employers should give priority to [Nationality] people over immigrants"
+    -   Scale: 1 (Strongly agree) to 4 (Strongly disagree)
 
 
 ### Descriptive Analysis
 
-```{r}
+Below tables are descriptive statistics for both continuous (v72, v80, age) and categorical variables (sex, education) in `r params$nms`.
+
+```{r echo=FALSE}
 # table for continuous variables
 sum_v72 <- summary(analysis_evs$v72)
 sum_v80 <- summary(analysis_evs$v80)
@@ -65,7 +79,7 @@ tab_continuous <- tibble("Variables" = c("v72", "v80", "age"),
 kable(tab_continuous, caption = "Summary Statistics for v72 and v80")
 ```
 
-```{r}
+```{r echo=FALSE}
 # table for categorical variables
 analysis_evs$sex <- factor(analysis_evs$sex, levels = c(1, 2), labels = c("Male", "Female"))
 analysis_evs$edu <- factor(analysis_evs$edu, levels = c(1, 2, 3, 66), labels = c("lower", "medium", "higher", "other"))
@@ -90,9 +104,11 @@ tab_categorical <- bind_rows(analysis_evs_sex, analysis_evs_edu)
 kable(tab_categorical, caption = "Summary Statistics for sex and education")
 ```
 
-### Graphs
+### Change in Attitudes by Age
 
-```{r}
+The two graphs presented below illustrates how the two variables of interest change with age in `r params$nms`. The X-axis denotes age, while the Y-axis represents the average level of disagreement for v72 and v80.
+
+```{r echo=FALSE}
 # table of average v72 and v80 by age
 tab_ave_age <- analysis_evs %>%
   select(v72, v80, age) %>%
@@ -121,7 +137,10 @@ ggplotly(chart_ave_v80)
 
 
 ### Regression models
-```{r results='asis'}
+
+The table below shows regression models for both attitudes towards Child suffers (v72) and Job to national (v80) in `r params$nms`. The models include respondents' age, age squared, sex and education.
+
+```{r echo=FALSE, results='asis'}
 analysis_evs$edu <- as.factor(analysis_evs$edu)
 analysis_evs$sex <- as.factor(analysis_evs$sex)
 
