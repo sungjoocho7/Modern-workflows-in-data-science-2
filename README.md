@@ -21,7 +21,7 @@ Original datasets are data/ZA7500_v5-0-0.sav, and the cleaned data evs.rds was u
 This repository is organized as follows:
 
 * **/data** - Contains both the raw data and edited data set used in the analysis as well as codebook of the EVS data set.
-* **/scripts** - Contains master R script for data cleaning and analysis.
+* **/scripts** - Contains master R script for data cleaning and analysis and markdown documents for two overall reports (one with code displayed and one without), and markdown documents for automated reports at the country level.
 * **/reports** - Contains an overall report with R code, another overall report without R code, and automated reports at the country level.
 * **/figs** - Contains figures (charts, etc) generated during the analysis or any visual outputs produced.
 * **/documentation** - Contains instructional document.
@@ -35,7 +35,7 @@ The two graphs presented below illustrates how the two variables of interest cha
 *Figure 1*
 
 ![](figs/chart_ave_v80.png)
-*Figure 1*
+*Figure 2*
 
 
 ## Session info:
