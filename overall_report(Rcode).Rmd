@@ -14,7 +14,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Introduction
 
-This report explores attitudes towards gender roles and immigration using data from the European Value Study (EVS) 2017. Key variables analyzed include v72 and v80, which respectively measure perceptions on maternal employment effects and job priority during scarcity. We will incorporates demographic information such as age, sex, and education level for a comprehensive analyses.
+This report explores attitudes towards gender roles and immigration using data from [2017 European Value Study (EVS)](https://search.gesis.org/research_data/ZA7500). Key variables analyzed include v72 and v80, which respectively measure perceptions on maternal employment effects and job priority during scarcity. We will incorporates demographic information such as age, sex, and education level for a comprehensive analyses.
 
 -   **v72** - Child suffers with working mother
     -   Question: When a mother works for pay, the children suffer
