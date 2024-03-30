@@ -22,7 +22,8 @@ This repository is organized as follows:
 
 * **/data** - Contains both the raw data and edited data set used in the analysis as well as codebook of the EVS data set.
 * **/scripts** - Contains master R script for data cleaning and analysis and markdown documents for two overall reports (one with code displayed and one without), and markdown documents for automated reports at the country level.
-* **/reports** - Contains an overall report with R code, another overall report without R code, and automated reports at the country level.
+* **/overall_reports** - Contains an overall report with R code and another overall report without R code.
+* **/country_reports** - Contains automated reports at the country level.
 * **/figs** - Contains figures (charts, etc) generated during the analysis or any visual outputs produced.
 * **/documentation** - Contains instructional document.
 
