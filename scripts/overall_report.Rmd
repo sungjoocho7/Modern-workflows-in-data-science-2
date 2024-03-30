@@ -3,8 +3,8 @@ title: "Overall Report (R code)-Attitudes Towards Gender Roles and Immigration"
 author: "Sungjoo Cho"
 date: "`r Sys.Date()`"
 output:
-  html_document: default
   pdf_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -93,7 +93,7 @@ kable(tab_categorical, caption = "Summary Statistics for sex and education")
 
 The two graphs presented below illustrates how the two variables of interest change with age. Notably, the average disagreement towards both child suffers and job to national variables decreases as age increases. Particularly, there is a more significant decrease observed in the v72 variable. This finding suggests that people are more likely to agree that child suffer when their mother works and that job priority should be given to nationals as they get older.
 
-```{r echo=FALSE}
+```{r echo=FALSE, message=FALSE, warning=FALSE}
 # table of average v72 and v80 by age
 tab_ave_age <- evs %>%
   select(v72, v80, age) %>%
@@ -107,8 +107,7 @@ chart_ave_v72 <- ggplot(tab_ave_age, aes(x=age, y=v72)) +
               labs(title = "Average Disagreement of v72 by Age", 
                    x = "Age", 
                    y = "Average Disagreement")
-
-ggplotly(chart_ave_v72)
+chart_ave_v72
 
 
   # grraph for v80
@@ -117,7 +116,7 @@ chart_ave_v80 <- ggplot(tab_ave_age, aes(x=age, y=v80)) +
               labs(title = "Average Disagreement of v80 by Age", 
                    x = "Age", 
                    y = "Average Disagreement")
-ggplotly(chart_ave_v80)
+chart_ave_v80
 ```
 
 
@@ -138,9 +137,10 @@ reg_v80 <- lm(v80 ~ age + I(age^2) + sex + edu, data = evs)
 
 # present outputs from stats model texreg (texreg: pdf, htmlreg: html)
 model_names <- c("Child suffers(v72)", "Job to national(v80)")
-coef_names <- c("Intercept", "Age", "Age Squared", "Female", "Education:medium", "Education:higher", "Education:other")
+coef_names <- c("Intercept", "Age", "Age Squared", "Female", 
+                "Education:medium", "Education:higher", "Education:other")
 
-htmlreg(list(reg_v72, reg_v80), 
+texreg(list(reg_v72, reg_v80), 
         custom.model.names = model_names, 
         custom.coef.names = coef_names,
         caption = "Outputs from Regression Models", type = "html")
